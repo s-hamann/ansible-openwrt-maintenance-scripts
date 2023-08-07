@@ -1,0 +1,47 @@
+---
+- name: 'Install required packages'
+  community.general.opkg:
+    name: diffutils
+    state: present
+
+- name: 'Create /usr/local/sbin directory'
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - '/usr/local/'
+    - '/usr/local/sbin/'
+
+- name: 'Add /usr/local/sbin to $PATH'
+  ansible.builtin.lineinfile:
+    path: '/etc/profile'
+    line: 'PATH="$PATH:/usr/local/sbin"'
+    insertafter: 'export PATH='
+    create: false
+    state: present
+
+- name: 'Install maintenance scripts'
+  ansible.builtin.copy:
+    dest: '/usr/local/sbin/'
+    src: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - config-update.sh
+    - opkg-predict-size.sh
+    - pkg-stats.sh
+
+- name: 'Show package stats on login'
+  ansible.builtin.lineinfile:
+    path: '/root/.profile'
+    line: 'pkg-stats.sh && echo'
+    insertafter: EOF
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    state: "{{ openwrt_maintenance_scripts_pkg_stats_on_login | bool | ternary('present', 'absent') }}"
