@@ -35,6 +35,16 @@
     - opkg-predict-size.sh
     - pkg-stats.sh
 
+- name: 'Keep maintenance scripts on system upgrades'
+  ansible.builtin.lineinfile:
+    path: '/etc/sysupgrade.conf'
+    line: "/usr/local/sbin/{{ item }}"
+    state: present
+  loop:
+    - config-update.sh
+    - opkg-predict-size.sh
+    - pkg-stats.sh
+
 - name: 'Show package stats on login'
   ansible.builtin.lineinfile:
     path: '/root/.profile'
