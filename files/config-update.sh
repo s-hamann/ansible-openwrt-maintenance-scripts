@@ -5,7 +5,7 @@ set -eu
 export EDITOR="${EDITOR:-vi}"
 export PAGER="${PAGER:-less}"
 
-if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
+if [ "${1:-}" = '-h' ] || [ "${1:-}" = '--help' ]; then
     cat - <<EOH
 Usage: $0
   Interactively apply config file updates
