@@ -38,12 +38,17 @@
 - name: 'Keep maintenance scripts on system upgrades'
   ansible.builtin.lineinfile:
     path: '/etc/sysupgrade.conf'
-    line: "/usr/local/sbin/{{ item }}"
+    line: "{{ item.file }}"
     state: present
   loop:
-    - config-update.sh
-    - opkg-predict-size.sh
-    - pkg-stats.sh
+    - file: '/usr/local/sbin/config-update.sh'
+    - file: '/usr/local/sbin/opkg-predict-size.sh'
+    - file: '/usr/local/sbin/pkg-stats.sh'
+    - file: '/root/.profile'
+      when: "{{ openwrt_maintenance_scripts_pkg_stats_on_login | bool }}"
+  loop_control:
+    label: "{{ item.file }}"
+  when: "item.when | default(true) | bool"
 
 - name: 'Show package stats on login'
   ansible.builtin.lineinfile:
